@@ -53,6 +53,56 @@
       </div>
     </section>
 
+    <!-- ── SAAS SPOTLIGHT ──────────────────────────────────────────── -->
+    <section class="saas-section">
+      <div class="container">
+        <div class="saas-label animate-up">Mon SaaS</div>
+        <div class="saas-card animate-up d1">
+          <div class="saas-grid-bg"></div>
+          <div class="saas-glow-left"></div>
+          <div class="saas-glow-right"></div>
+
+          <div class="saas-inner">
+            <!-- Left: content -->
+            <div class="saas-content">
+              <div class="saas-top-row">
+                <span class="saas-live-badge">
+                  <span class="live-dot"></span>
+                  En production
+                </span>
+                <span class="saas-platforms">Android · iOS</span>
+              </div>
+              <h2 class="saas-name grad-text">LiftConnect</h2>
+              <p class="saas-tagline">Application mobile de musculation full-stack</p>
+              <div class="saas-features">
+                <span class="sf-chip">327 exercices</span>
+                <span class="sf-chip">17 programmes</span>
+                <span class="sf-chip">Sessions de groupe</span>
+                <span class="sf-chip">Stats interactives</span>
+                <span class="sf-chip">Sync Google Drive</span>
+              </div>
+              <div class="saas-actions">
+                <a :href="liftconnect.link" target="_blank" class="btn-primary">Découvrir liftconnect.eu ↗</a>
+                <RouterLink :to="`/projets/${liftconnect.id}`" class="btn-ghost">Voir le projet</RouterLink>
+              </div>
+              <div class="saas-tech-row">
+                <span v-for="t in liftconnect.tech" :key="t" class="saas-tech">{{ t }}</span>
+              </div>
+            </div>
+
+            <!-- Right: stats panel -->
+            <div class="saas-panel">
+              <div class="saas-stat-row" v-for="(s, i) in liftconnect.saasStats" :key="s.label">
+                <div class="ss-val">{{ s.value }}</div>
+                <div class="ss-lbl">{{ s.label }}</div>
+                <div v-if="i < liftconnect.saasStats.length - 1" class="ss-divider"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- ── À PROPOS ───────────────────────────────────────────────── -->
     <section class="section about-section" id="about">
       <div class="container about-grid">
@@ -182,7 +232,8 @@ import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { profile, projects, categoryLabels, statusLabels, statusColors, tagLabels } from '@/data'
 
-const featuredProjects = computed(() => projects.filter(p => p.featured))
+const featuredProjects = computed(() => projects.filter(p => p.featured && !p.saas))
+const liftconnect = projects.find(p => p.id === 'liftconnect')
 </script>
 
 <style scoped>
@@ -277,6 +328,121 @@ main { padding-top: var(--nav-h); }
 .stat-label { font-size: 0.78rem; font-weight: 600; color: rgba(255,255,255,0.6); margin-bottom: 3px; }
 .stat-sub { font-size: 0.65rem; color: rgba(255,255,255,0.25); }
 
+/* ── SaaS Spotlight ── */
+.saas-section { padding: 60px 0 0; }
+.saas-label {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--secondary); opacity: 0.8; margin-bottom: 20px;
+}
+
+.saas-card {
+  position: relative; overflow: hidden;
+  border: 1px solid rgba(186,242,216,0.2);
+  border-radius: 24px;
+  padding: 56px 60px;
+  background: linear-gradient(160deg, rgba(20,45,85,0.9) 0%, rgba(9,31,68,0.95) 100%);
+}
+.saas-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--secondary) 30%, rgba(186,242,216,0.4) 60%, transparent 100%);
+}
+.saas-card::after {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: linear-gradient(180deg, var(--secondary) 0%, rgba(186,242,216,0.3) 60%, transparent 100%);
+  border-radius: 24px 0 0 24px;
+}
+
+.saas-grid-bg {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(186,242,216,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(186,242,216,0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 80% 70% at 20% 40%, black 10%, transparent 100%);
+}
+.saas-glow-left {
+  position: absolute; width: 600px; height: 500px; border-radius: 50%;
+  background: radial-gradient(rgba(34,59,101,0.6), transparent 65%);
+  top: -180px; left: -150px; pointer-events: none;
+}
+.saas-glow-right {
+  position: absolute; width: 400px; height: 400px; border-radius: 50%;
+  background: radial-gradient(rgba(186,242,216,0.04), transparent 70%);
+  bottom: -120px; right: -80px; pointer-events: none;
+}
+
+.saas-inner {
+  position: relative; z-index: 1;
+  display: grid; grid-template-columns: 1fr 200px;
+  gap: 60px; align-items: center;
+}
+
+/* Left content */
+.saas-content { display: flex; flex-direction: column; gap: 0; }
+.saas-top-row { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+.saas-live-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--secondary); background: rgba(186,242,216,0.1);
+  border: 1px solid rgba(186,242,216,0.3); border-radius: 100px; padding: 5px 13px;
+}
+.live-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--secondary); box-shadow: 0 0 10px rgba(186,242,216,0.9);
+  animation: pulse 2s ease-in-out infinite; flex-shrink: 0;
+}
+.saas-platforms { font-size: 0.7rem; color: rgba(255,255,255,0.28); font-weight: 500; letter-spacing: 0.04em; }
+
+.saas-name {
+  font-family: var(--font-serif);
+  font-size: clamp(3.2rem, 5vw, 5rem);
+  font-weight: 700; letter-spacing: -0.04em; line-height: 0.95;
+  margin-bottom: 14px;
+}
+.saas-tagline { font-size: 0.88rem; color: rgba(255,255,255,0.38); margin-bottom: 28px; letter-spacing: 0.01em; }
+
+.saas-features { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px; }
+.sf-chip {
+  font-size: 0.75rem; font-weight: 600; padding: 6px 14px; border-radius: 20px;
+  color: rgba(255,255,255,0.65); background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.saas-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
+
+.saas-tech-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.saas-tech {
+  font-size: 0.65rem; font-weight: 700; padding: 3px 10px; border-radius: 20px;
+  color: rgba(186,242,216,0.6); background: rgba(186,242,216,0.06);
+  border: 1px solid rgba(186,242,216,0.12); letter-spacing: 0.04em;
+}
+
+/* Right stats panel */
+.saas-panel {
+  display: flex; flex-direction: column;
+  border-left: 1px solid rgba(186,242,216,0.12);
+  padding-left: 40px; gap: 0;
+}
+.saas-stat-row { display: flex; flex-direction: column; gap: 4px; padding: 20px 0; }
+.saas-stat-row:first-child { padding-top: 0; }
+.ss-val {
+  font-family: var(--font-serif); font-size: 2.2rem; font-weight: 700;
+  color: var(--secondary); letter-spacing: -0.04em; line-height: 1.1;
+  word-break: keep-all; white-space: nowrap;
+}
+.ss-lbl { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(255,255,255,0.3); }
+.ss-divider { height: 1px; background: rgba(186,242,216,0.1); margin-top: 0; }
+
+@media (max-width: 860px) {
+  .saas-inner { grid-template-columns: 1fr; gap: 40px; }
+  .saas-card { padding: 36px 28px 36px 36px; }
+  .saas-panel { border-left: none; border-top: 1px solid rgba(186,242,216,0.12); padding-left: 0; padding-top: 32px; flex-direction: row; flex-wrap: wrap; gap: 24px; }
+  .saas-stat-row { padding: 0; flex: 1; min-width: 90px; }
+  .ss-divider { display: none; }
+}
+
 /* ── About ── */
 .about-section { background: rgba(255,255,255,0.015); border-top: 1px solid var(--border-soft); border-bottom: 1px solid var(--border-soft); }
 .about-grid { display: grid; grid-template-columns: 1fr 320px; gap: 64px; align-items: start; }
@@ -286,10 +452,10 @@ main { padding-top: var(--nav-h); }
 .section-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 40px; }
 .section-row .section-title { margin-bottom: 0; }
 
-.skills-categories { display: flex; flex-direction: column; gap: 20px; }
-.skill-category { display: flex; flex-direction: column; gap: 8px; }
-.skill-cat-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; }
-.skill-cat-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.skills-categories { display: flex; flex-direction: column; gap: 12px; }
+.skill-category { display: flex; flex-direction: row; align-items: flex-start; gap: 16px; }
+.skill-cat-label { font-size: 0.63rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; min-width: 130px; flex-shrink: 0; padding-top: 6px; }
+.skill-cat-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .skill-chip {
   font-size: 0.78rem; font-weight: 500;
   padding: 5px 12px; border-radius: 20px;
@@ -361,5 +527,7 @@ main { padding-top: var(--nav-h); }
   .about-grid { grid-template-columns: 1fr; }
   .featured-grid { grid-template-columns: 1fr; }
   .hero-title { font-size: 3.2rem; }
+  .skill-category { flex-direction: column; gap: 6px; }
+  .skill-cat-label { min-width: unset; padding-top: 0; }
 }
 </style>

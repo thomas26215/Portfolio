@@ -10,6 +10,12 @@
     </div>
 
     <div class="container content">
+      <!-- Search -->
+      <div class="search-wrap animate-up">
+        <input v-model="search" type="text" placeholder="Rechercher un projet, une techno…" class="search-input" />
+        <button v-if="search" class="search-clear" @click="search = ''">✕</button>
+      </div>
+
       <!-- Filter bar -->
       <div class="filter-bar animate-up d1">
         <div class="filter-tabs">
@@ -28,11 +34,38 @@
 
       <!-- Featured strip (all tab) -->
       <template v-if="activeCat === 'all'">
-        <div class="group-header animate-up">
+        <!-- LiftConnect SaaS hero -->
+        <RouterLink v-if="liftconnect" :to="`/projets/${liftconnect.id}`" class="saas-hero animate-up">
+          <div class="saas-hero-bg"></div>
+          <div class="saas-hero-inner">
+            <div class="saas-hero-left">
+              <div class="saas-hero-badge-row">
+                <span class="saas-hero-badge"><span class="sh-dot"></span>SaaS · En production</span>
+                <span class="saas-hero-year">{{ liftconnect.year }}</span>
+              </div>
+              <div class="saas-hero-title">{{ liftconnect.title }}</div>
+              <p class="saas-hero-desc">{{ liftconnect.desc }}</p>
+              <div class="saas-hero-techs">
+                <span v-for="t in liftconnect.tech" :key="t" class="sh-tech">{{ t }}</span>
+              </div>
+            </div>
+            <div class="saas-hero-right">
+              <div v-if="liftconnect.saasStats" class="sh-stats">
+                <div v-for="s in liftconnect.saasStats" :key="s.label" class="sh-stat">
+                  <div class="sh-stat-val">{{ s.value }}</div>
+                  <div class="sh-stat-lbl">{{ s.label }}</div>
+                </div>
+              </div>
+              <div class="sh-cta">Voir le projet ↗</div>
+            </div>
+          </div>
+        </RouterLink>
+
+        <div class="group-header animate-up d1">
           <span class="group-label">⭐ Mis en avant</span>
         </div>
-        <div class="projects-grid featured animate-up d1">
-          <ProjectCard v-for="p in featuredProjects" :key="p.id" :project="p" featured />
+        <div class="projects-grid featured animate-up d2">
+          <ProjectCard v-for="p in featuredProjectsNoSaas" :key="p.id" :project="p" featured />
         </div>
         <div class="group-header animate-up d2">
           <span class="group-label">Tous les projets</span>
@@ -91,8 +124,11 @@ import { RouterLink } from 'vue-router'
 import ProjectCard from './ProjectCard.vue'
 import { projects, semesterLabels } from '@/data'
 
+const liftconnect = projects.find(p => p.id === 'liftconnect')
+
 const activeCat = ref('all')
 const activeSem = ref(null)
+const search = ref('')
 
 const categories = [
   { key: 'all',   label: 'Tous' },
@@ -102,18 +138,30 @@ const categories = [
 ]
 
 function getCatCount(key) {
-  if (key === 'all') return projects.length
-  return projects.filter(p => p.category === key).length
+  if (key === 'all') return searchFiltered.value.length
+  return searchFiltered.value.filter(p => p.category === key).length
 }
 
-const filteredProjects = computed(() => {
-  if (activeCat.value === 'all') return projects
-  return projects.filter(p => p.category === activeCat.value)
+const searchFiltered = computed(() => {
+  if (!search.value.trim()) return projects
+  const q = search.value.toLowerCase()
+  return projects.filter(p =>
+    p.title.toLowerCase().includes(q) ||
+    (p.subtitle || '').toLowerCase().includes(q) ||
+    p.desc.toLowerCase().includes(q) ||
+    (p.tech || []).some(t => t.toLowerCase().includes(q))
+  )
 })
-const featuredProjects    = computed(() => projects.filter(p => p.featured))
-const nonFeaturedProjects = computed(() => projects.filter(p => !p.featured))
 
-const academicProjects = computed(() => projects.filter(p => p.category === 'acad'))
+const filteredProjects = computed(() => {
+  if (activeCat.value === 'all') return searchFiltered.value
+  return searchFiltered.value.filter(p => p.category === activeCat.value)
+})
+const featuredProjects       = computed(() => searchFiltered.value.filter(p => p.featured))
+const featuredProjectsNoSaas = computed(() => searchFiltered.value.filter(p => p.featured && !p.saas))
+const nonFeaturedProjects    = computed(() => searchFiltered.value.filter(p => !p.featured))
+
+const academicProjects = computed(() => searchFiltered.value.filter(p => p.category === 'acad'))
 
 const projectsBySem = computed(() => {
   const g = {}
@@ -152,6 +200,24 @@ main { padding-top: var(--nav-h); }
 
 .content { padding: 36px 24px 60px; }
 
+/* Search */
+.search-wrap { position: relative; margin-bottom: 14px; }
+.search-input {
+  width: 100%; padding: 10px 40px 10px 16px;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border-soft);
+  border-radius: 12px; font-size: 0.85rem; color: rgba(255,255,255,0.75);
+  font-family: var(--font-sans); outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+}
+.search-input::placeholder { color: rgba(255,255,255,0.2); }
+.search-input:focus { border-color: rgba(186,242,216,0.35); box-shadow: 0 0 0 3px rgba(186,242,216,0.06); }
+.search-clear {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer;
+  font-size: 0.7rem; color: rgba(255,255,255,0.3); padding: 4px;
+  transition: color 0.2s;
+}
+.search-clear:hover { color: rgba(255,255,255,0.6); }
+
 /* Filter bar */
 .filter-bar { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
 .filter-tabs { display: flex; gap: 4px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-soft); border-radius: 12px; padding: 4px; width: fit-content; }
@@ -173,6 +239,64 @@ main { padding-top: var(--nav-h); }
   cursor: pointer; transition: all 0.2s;
 }
 .sem-chip.active, .sem-chip:hover { color: var(--secondary); background: rgba(186,242,216,0.08); border-color: rgba(186,242,216,0.25); }
+
+/* SaaS hero */
+.saas-hero {
+  display: block; text-decoration: none;
+  position: relative; overflow: hidden;
+  background: linear-gradient(135deg, rgba(34,59,101,0.6) 0%, rgba(8,12,18,0.85) 60%);
+  border: 1px solid rgba(186,242,216,0.25);
+  border-radius: 16px; padding: 36px 40px;
+  margin-bottom: 28px;
+  transition: border-color 0.3s, transform 0.3s cubic-bezier(0.34,1.2,0.64,1), box-shadow 0.3s;
+}
+.saas-hero::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--secondary), rgba(186,242,216,0.25) 50%, transparent);
+}
+.saas-hero:hover {
+  border-color: rgba(186,242,216,0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.35), 0 0 0 1px rgba(186,242,216,0.08);
+}
+.saas-hero-bg {
+  position: absolute; width: 400px; height: 400px; border-radius: 50%;
+  background: radial-gradient(rgba(34,59,101,0.45), transparent 70%);
+  top: -150px; right: -80px; pointer-events: none;
+}
+.saas-hero-inner { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr auto; gap: 40px; align-items: center; }
+.saas-hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.saas-hero-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.65rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--secondary); background: rgba(186,242,216,0.1); border: 1px solid rgba(186,242,216,0.3);
+  border-radius: 100px; padding: 4px 12px;
+}
+.sh-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--secondary); box-shadow: 0 0 7px rgba(186,242,216,0.8);
+  animation: pulse 2s ease-in-out infinite; flex-shrink: 0;
+}
+.saas-hero-year { font-size: 0.68rem; color: rgba(255,255,255,0.3); }
+.saas-hero-title { font-family: var(--font-serif); font-size: 2rem; font-weight: 700; color: #fff; letter-spacing: -0.02em; margin-bottom: 10px; }
+.saas-hero:hover .saas-hero-title { color: var(--secondary); transition: color 0.25s; }
+.saas-hero-desc { font-size: 0.82rem; color: rgba(255,255,255,0.48); line-height: 1.65; margin-bottom: 18px; max-width: 600px; }
+.saas-hero-techs { display: flex; gap: 6px; flex-wrap: wrap; }
+.sh-tech { font-size: 0.68rem; font-weight: 600; padding: 3px 10px; border-radius: 20px; color: rgba(186,242,216,0.7); background: rgba(186,242,216,0.07); border: 1px solid rgba(186,242,216,0.14); }
+
+.saas-hero-right { display: flex; flex-direction: column; align-items: flex-end; gap: 20px; flex-shrink: 0; }
+.sh-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.sh-stat { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 12px 14px; text-align: center; min-width: 90px; }
+.sh-stat-val { font-size: 1.1rem; font-weight: 700; color: var(--secondary); letter-spacing: -0.02em; margin-bottom: 3px; }
+.sh-stat-lbl { font-size: 0.58rem; font-weight: 600; color: rgba(255,255,255,0.28); text-transform: uppercase; letter-spacing: 0.07em; }
+.sh-cta { font-size: 0.78rem; font-weight: 700; color: var(--secondary); opacity: 0; transform: translateX(-6px); transition: opacity 0.25s, transform 0.25s; }
+.saas-hero:hover .sh-cta { opacity: 1; transform: translateX(0); }
+
+@media (max-width: 680px) {
+  .saas-hero-inner { grid-template-columns: 1fr; gap: 20px; }
+  .saas-hero { padding: 24px 20px; }
+  .saas-hero-right { align-items: flex-start; }
+}
 
 /* Group header */
 .group-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }

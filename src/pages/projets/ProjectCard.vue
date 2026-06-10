@@ -2,6 +2,9 @@
   <RouterLink :to="`/projets/${project.id}`" class="pcard" :class="{ featured }">
     <div class="pc-top">
       <div class="pc-tags">
+        <span v-if="project.saas" class="saas-badge-mini">
+          <span class="saas-mini-dot"></span>SaaS
+        </span>
         <span :class="['tag', `tag-${project.category}`]">{{ categoryLabels[project.category] }}</span>
         <span v-if="project.semester" class="sem-badge">{{ project.semester }}</span>
       </div>
@@ -59,6 +62,20 @@ defineProps({ project: { type: Object, required: true }, featured: { type: Boole
   position: absolute; top: 0; left: 0; right: 0; height: 1px;
   background: linear-gradient(90deg, var(--secondary), transparent 65%);
 }
+
+.saas-badge-mini {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 0.58rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--secondary); background: rgba(186,242,216,0.1);
+  border: 1px solid rgba(186,242,216,0.28); border-radius: 100px;
+  padding: 2px 8px;
+}
+.saas-mini-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--secondary); box-shadow: 0 0 6px rgba(186,242,216,0.7);
+  animation: pulse-mini 2s ease-in-out infinite; flex-shrink: 0;
+}
+@keyframes pulse-mini { 0%,100%{opacity:1} 50%{opacity:0.35} }
 
 .pc-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .pc-tags { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }

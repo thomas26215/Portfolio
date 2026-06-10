@@ -124,6 +124,22 @@ export const parcours = [
     sem: 'S1',
   },
   {
+    id: 'france-ioi', type: 'formation', icon: '🧩',
+    title: 'France IOI',
+    org: 'france-ioi.org',
+    period: '2020 – présent',
+    tags: ['formation'],
+    desc: "Exercices d'algorithmique et de programmation sur la plateforme France IOI.",
+  },
+  {
+    id: 'openclassrooms', type: 'formation', icon: '🎓',
+    title: 'OpenClassrooms',
+    org: 'openclassrooms.com',
+    period: '2021 – présent',
+    tags: ['formation'],
+    desc: "Suivi de cours en ligne sur le développement web, mobile et l'informatique en général.",
+  },
+  {
     id: 'emplois-saisonniers', type: 'other', icon: '🌾',
     title: 'Emplois saisonniers',
     org: 'Exploitations agricoles · Drôme',
@@ -163,14 +179,20 @@ export const projects = [
   {
     id: 'liftconnect',
     title: 'LiftConnect',
-    subtitle: 'Application mobile de musculation',
-    category: 'perso', status: 'prod', year: '2021 – présent', featured: true, semester: null,
-    desc: "Application Flutter full-stack disponible sur Android & iOS. Gestion de programmes, exercices, sessions de groupe, statistiques, feed social. Backend Firestore avec 327 exercices et 17 programmes d'entraînement.",
-    longDesc: "LiftConnect est mon projet phare, développé depuis le lycée en passant par Java puis une réécriture complète en Flutter. L'application comprend : gestion d'entraînements, bibliothèque d'exercices avec substitutions, sessions de groupe partagées via Firestore, statistiques interactives, synchronisation Google Drive, et une landing page publique.",
+    subtitle: 'SaaS mobile de musculation',
+    category: 'perso', status: 'prod', year: '2021 – présent', featured: true, saas: true, semester: null,
+    desc: "SaaS Flutter full-stack en production sur Android & iOS. Gestion de programmes, exercices avec substitutions, sessions de groupe partagées en temps réel, statistiques interactives et feed social. Backend Firestore avec 327 exercices et 17 programmes d'entraînement.",
+    longDesc: "LiftConnect est mon SaaS phare, développé depuis le lycée (Java) et réécrit entièrement en Flutter. L'application comprend : gestion d'entraînements personnalisés, bibliothèque de 327 exercices avec substitutions intelligentes, sessions de groupe partagées via Firestore en temps réel, statistiques interactives, synchronisation Google Drive, notifications push, et une landing page publique sur liftconnect.eu.",
     tags: ['flutter', 'dart', 'firebase'],
     tech: ['Flutter', 'Dart', 'Firebase', 'Firestore'],
     link: 'https://liftconnect.eu',
     github: 'https://github.com/thomas26215',
+    saasStats: [
+      { label: 'Exercices', value: '327' },
+      { label: 'Programmes', value: '17' },
+      { label: 'Plateformes', value: 'iOS + Android' },
+      { label: 'En prod depuis', value: '2021' },
+    ],
   },
   {
     id: 'araymond-tests',
@@ -364,5 +386,5 @@ export const statusColors    = { prod:'#baf2d8', wip:'#fbbf24', done:'#94a3b8' }
 export const tagLabels       = {
   flutter:'Flutter', vue:'Vue.js', python:'Python', firebase:'Firebase',
   java:'Java', dart:'Dart', js:'JavaScript', node:'Node.js', sql:'SQL',
-  perso:'Perso', acad:'Académique', stage:'Stage',
+  perso:'Perso', acad:'Académique', stage:'Stage', formation:'En ligne',
 }

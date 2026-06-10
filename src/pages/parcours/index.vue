@@ -13,9 +13,17 @@
       <!-- Timeline -->
       <div class="timeline-col">
         <div class="tl-head animate-up">Chronologie</div>
+
+        <div class="tl-filter animate-up">
+          <button v-for="f in typeFilters" :key="f.key" class="tl-ftab" :class="{ active: activeType === f.key }" @click="setType(f.key)">
+            {{ f.label }}
+            <span class="tl-ftab-count">{{ getTypeCount(f.key) }}</span>
+          </button>
+        </div>
+
         <div class="timeline">
           <div
-            v-for="(item, i) in parcours"
+            v-for="(item, i) in filteredParcours"
             :key="item.id"
             class="tl-item animate-up"
             :class="[`d${Math.min(i, 6)}`, { selected: selected?.id === item.id }]"
@@ -24,7 +32,7 @@
             <!-- Connector line -->
             <div class="tl-line-col">
               <div class="tl-dot" :class="{ current: item.current }">{{ item.icon }}</div>
-              <div v-if="i < parcours.length - 1" class="tl-connector"></div>
+              <div v-if="i < filteredParcours.length - 1" class="tl-connector"></div>
             </div>
             <!-- Content -->
             <div class="tl-body" :class="{ active: selected?.id === item.id }">
@@ -95,9 +103,33 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { parcours, tagLabels } from '@/data'
+
+const activeType = ref('all')
+const typeFilters = [
+  { key: 'all',       label: 'Tout' },
+  { key: 'acad',      label: 'Académique' },
+  { key: 'stage',     label: 'Stage' },
+  { key: 'formation', label: 'En ligne' },
+  { key: 'other',     label: 'Autre' },
+]
+
+function getTypeCount(key) {
+  if (key === 'all') return parcours.length
+  return parcours.filter(p => p.type === key).length
+}
+
+const filteredParcours = computed(() => {
+  if (activeType.value === 'all') return parcours
+  return parcours.filter(p => p.type === activeType.value)
+})
+
+function setType(key) {
+  activeType.value = key
+  selected.value = filteredParcours.value[0] || null
+}
 
 const selected = ref(parcours[0])
 
@@ -132,7 +164,19 @@ main { padding-top: var(--nav-h); }
 }
 
 /* Timeline */
-.tl-head { font-size: 0.72rem; font-weight: 600; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 20px; }
+.tl-head { font-size: 0.72rem; font-weight: 600; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 14px; }
+
+.tl-filter { display: flex; gap: 4px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-soft); border-radius: 12px; padding: 4px; width: fit-content; margin-bottom: 20px; }
+.tl-ftab {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 13px; border-radius: 9px; font-size: 0.75rem; font-weight: 600;
+  color: rgba(255,255,255,0.4); background: transparent;
+  transition: all 0.2s; cursor: pointer; border: none;
+}
+.tl-ftab.active { background: rgba(255,255,255,0.08); color: #fff; }
+.tl-ftab:hover:not(.active) { color: rgba(255,255,255,0.7); }
+.tl-ftab-count { font-size: 0.62rem; background: rgba(255,255,255,0.07); border-radius: 20px; padding: 1px 5px; color: rgba(255,255,255,0.3); }
+.tl-ftab.active .tl-ftab-count { background: rgba(186,242,216,0.15); color: var(--secondary); }
 
 .timeline { display: flex; flex-direction: column; }
 .tl-item { display: grid; grid-template-columns: 44px 1fr; gap: 0 14px; cursor: pointer; }
